@@ -28,7 +28,6 @@ describe("Test list a customer use case", () => {
 
   it("should listing customers", async () => {
     const customerRepository = new CustomerRepository();
-    const usecaseCreate = new CreateCustomerUseCase(customerRepository);
     const customer1 = CustomerFactory.createWithAddress(
       "John Doe",
       new Address("Street 1", 1, "12345", "City")

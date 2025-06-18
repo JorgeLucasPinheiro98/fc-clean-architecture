@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize-typescript";
-import Customer from "../../../domain/customer/entity/customer";
-import Address from "../../../domain/customer/value-object/address";
-import CustomerModel from "../../../infrastructure/customer/repository/sequelize/customer.model";
-import CustomerRepository from "../../../infrastructure/customer/repository/sequelize/customer.repository";
-import CustomerFactory from "../../../domain/customer/factory/customer.factory";
+import ProductModel from "../../../infrastructure/product/repository/sequelize/product.model";
+import ProductRepository from "../../../infrastructure/product/repository/sequelize/product.repository";
+import CreateProductUseCase from "../create/create.product.usecase";
+import Product from "../../../domain/product/entity/product";
+import updateProductUseCase from "./update.product.usecase";
 
 
-describe("Test Update a customer use case", () => {
+describe("Test Update a product use case", () => {
   let sequelize: Sequelize;
 
   beforeEach(async () => {
@@ -17,7 +17,7 @@ describe("Test Update a customer use case", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([CustomerModel]);
+    await sequelize.addModels([ProductModel]);
     await sequelize.sync();
   });
 
@@ -25,27 +25,19 @@ describe("Test Update a customer use case", () => {
     await sequelize.close();
   });
 
-  it("should Create a customer", async () => {
-    const customer = CustomerFactory.createWithAddress(
-      "John",
-      new Address("Street", 123, "Zip", "City")
-    );
+  it("should update a product", async () => {
+    const product = new Product('a','productMock',1)
 
-    const customerRepository = new CustomerRepository();
-    const createCustomer = new CreateCustomerUseCase(customerRepository)
-    const updateCustumer = new UpdateCustomerUseCase(customerRepository);
+    const productRepository = new ProductRepository();
+    const createproduct = new CreateProductUseCase(productRepository)
+    const updateCustumer = new updateProductUseCase(productRepository);
 
-    await customerRepository.create(customer)
+    await productRepository.create(product)
     
     const input = {
-      id: customer.id,
-      name: "John Updated",
-      address: {
-        street: "Street Updated",
-        number: 1234,
-        zip: "Zip Updated",
-        city: "City Updated",
-      },
+      id: 'a',
+      name: 'ProductMock',
+      price: 2
     };
 
     const output = await updateCustumer.execute(input)

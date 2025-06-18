@@ -33,7 +33,6 @@ describe("Test Update a customer use case", () => {
     );
 
     const customerRepository = new CustomerRepository();
-    const createCustomer = new CreateCustomerUseCase(customerRepository)
     const updateCustumer = new UpdateCustomerUseCase(customerRepository);
 
     await customerRepository.create(customer)

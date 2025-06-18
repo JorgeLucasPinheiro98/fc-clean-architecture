@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize-typescript";
-import Customer from "../../../domain/customer/entity/customer";
-import Address from "../../../domain/customer/value-object/address";
-import CustomerModel from "../../../infrastructure/customer/repository/sequelize/customer.model";
-import CustomerRepository from "../../../infrastructure/customer/repository/sequelize/customer.repository";
-import CustomerFactory from "../../../domain/customer/factory/customer.factory";
+import ProductModel from "../../../infrastructure/product/repository/sequelize/product.model";
+import ListProductUseCase from "./list.product.usecase";
+import ProductRepository from "../../../infrastructure/product/repository/sequelize/product.repository";
+import Product from "../../../domain/product/entity/product";
+import CreateProductUseCase from "../create/create.product.usecase";
 
 
-describe("Test list a customer use case", () => {
+describe("Test list a product use case", () => {
   let sequelize: Sequelize;
 
   beforeEach(async () => {
@@ -17,7 +17,7 @@ describe("Test list a customer use case", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([CustomerModel]);
+    await sequelize.addModels([ProductModel]);
     await sequelize.sync();
   });
 
@@ -25,31 +25,24 @@ describe("Test list a customer use case", () => {
     await sequelize.close();
   });
 
-  it("should listing customers", async () => {
-    const customerRepository = new CustomerRepository();
-    const usecaseCreate = new CreateCustomerUseCase(customerRepository);
-    const customer1 = CustomerFactory.createWithAddress(
-      "John Doe",
-      new Address("Street 1", 1, "12345", "City")
-    );
-    const customer2 = CustomerFactory.createWithAddress(
-      "Jane Doe",
-      new Address("Street 1", 1, "12345", "City")
-    );
+  it("should listing products", async () => {
+    const productRepository = new ProductRepository();
+    const product1 = new Product('1','productMock1', 1)
+    const product2 = new Product('2','productMock2', 2)
     
-    await customerRepository.create(customer1);
-    await customerRepository.create(customer2);
+    await productRepository.create(product1);
+    await productRepository.create(product2);
 
-    const usecaseList = new ListCustomerUseCase(customerRepository);
+    const usecaseList = new ListProductUseCase(productRepository);
     const output = await usecaseList.execute({})
 
-    expect(output.customers.length).toBe(2);
-    expect(output.customers.length).toBe(2);
-    expect(output.customers[0].id).toBe(customer1.id);
-    expect(output.customers[0].name).toBe(customer1.name);
-    expect(output.customers[0].address.street).toBe(customer1.Address.street);
-    expect(output.customers[1].id).toBe(customer2.id);
-    expect(output.customers[1].name).toBe(customer2.name);
-    expect(output.customers[1].address.street).toBe(customer2.Address.street);
+    expect(output.products.length).toBe(2);
+    expect(output.products.length).toBe(2);
+    expect(output.products[0].id).toBe(product1.id);
+    expect(output.products[0].name).toBe(product1.name);
+    expect(output.products[0].price).toBe(product1.price);
+    expect(output.products[1].id).toBe(product2.id);
+    expect(output.products[1].name).toBe(product2.name);
+    expect(output.products[1].price).toBe(product2.price);
   });
 });
