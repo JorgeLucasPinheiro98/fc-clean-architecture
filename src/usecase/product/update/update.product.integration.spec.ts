@@ -1,29 +1,55 @@
 import { Sequelize } from "sequelize-typescript";
+import Customer from "../../../domain/customer/entity/customer";
+import Address from "../../../domain/customer/value-object/address";
 import CustomerModel from "../../../infrastructure/customer/repository/sequelize/customer.model";
-import ProductRepository from "../../../infrastructure/product/repository/sequelize/product.repository";
-import FindProductUseCase from "./update.product.usecase";
-import Product from "../../../domain/product/entity/product";
-import ProductModel from "../../../infrastructure/product/repository/sequelize/product.model";
+import CustomerRepository from "../../../infrastructure/customer/repository/sequelize/customer.repository";
+import CustomerFactory from "../../../domain/customer/factory/customer.factory";
 
 
-describe('Test find product use case', () => {
-    let sequelize: Sequelize;
+describe("Test Update a customer use case", () => {
+  let sequelize: Sequelize;
+
+  beforeEach(async () => {
+    sequelize = new Sequelize({
+      dialect: "sqlite",
+      storage: ":memory:",
+      logging: false,
+      sync: { force: true },
+    });
+
+    await sequelize.addModels([CustomerModel]);
+    await sequelize.sync();
+  });
+
+  afterEach(async () => {
+    await sequelize.close();
+  });
+
+  it("should Create a customer", async () => {
+    const customer = CustomerFactory.createWithAddress(
+      "John",
+      new Address("Street", 123, "Zip", "City")
+    );
+
+    const customerRepository = new CustomerRepository();
+    const createCustomer = new CreateCustomerUseCase(customerRepository)
+    const updateCustumer = new UpdateCustomerUseCase(customerRepository);
+
+    await customerRepository.create(customer)
     
-      beforeEach(async () => {
-        sequelize = new Sequelize({
-          dialect: "sqlite",
-          storage: ":memory:",
-          logging: false,
-          sync: { force: true },
-        });
-    
-        await sequelize.addModels([ProductModel]);
-        await sequelize.sync();
-      });
+    const input = {
+      id: customer.id,
+      name: "John Updated",
+      address: {
+        street: "Street Updated",
+        number: 1234,
+        zip: "Zip Updated",
+        city: "City Updated",
+      },
+    };
 
-      afterEach(async () => {
-        await sequelize.close();
-      })
+    const output = await updateCustumer.execute(input)
 
-      
+    expect(output).toEqual(input);
+  });
 });
